@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">A1 Gurpreet Singh 000901702</string>
+    <string-array name="countries">
+        <item>USA</item>
+        <item>Canada</item>
+        <item>Saudi Arabia</item>
+        <item>Qatar</item>
+        <item>Kuwait</item>
+    </string-array>
+</resources>
