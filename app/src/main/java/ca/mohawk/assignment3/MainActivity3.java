@@ -1,7 +1,5 @@
 package ca.mohawk.assignment3;
 
-import static ca.mohawk.assignment3.MainActivity.conversionRates;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,31 +19,37 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity3 extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "CurrencyPrefs";
     private static final String PREF_CURRENCY_INDEX = "currency_index";
-
-    private Spinner currencySpinner;
+    private Spinner sourceCurrencySpinner;
+    private Spinner targetCurrencySpinner;
     private TextView conversionRateText;
     private Button saveButton;
+    private int sourceIndex = 0;
+    private int targetIndex = 1;
     private int selectedIndex = 0;
-    private SharedPreferences sharedPreferences;
+
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main3);
 
-        currencySpinner = findViewById(R.id.spinner);
+        sourceCurrencySpinner = findViewById(R.id.sourceSpinner);
+        targetCurrencySpinner = findViewById(R.id.targetSpinner);
         conversionRateText = findViewById(R.id.textView7);
         saveButton = findViewById(R.id.button3);
 
-        sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        selectedIndex = sharedPreferences.getInt(PREF_CURRENCY_INDEX, 0);
-        currencySpinner.setSelection(selectedIndex);
-        currencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        sharedPreferences = getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE);
+        sourceIndex = sharedPreferences.getInt(MainActivity.PREF_SOURCE_CURRENCY, 0);
+        targetIndex = sharedPreferences.getInt(MainActivity.PREF_TARGET_CURRENCY, 1);
+
+        sourceCurrencySpinner.setSelection(sourceIndex);
+        targetCurrencySpinner.setSelection(targetIndex);
+        sourceCurrencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedIndex = position;
+                sourceIndex = position;
                 updateRateDisplay();
             }
 
@@ -54,7 +58,22 @@ public class MainActivity3 extends AppCompatActivity {
                 // Do nothing
             }
         });
+
+        targetCurrencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                targetIndex = position;
+                updateRateDisplay();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
+
         updateRateDisplay();
+
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,7 +86,8 @@ public class MainActivity3 extends AppCompatActivity {
 
     private void saveSettings() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(PREF_CURRENCY_INDEX, selectedIndex);
+        editor.putInt(MainActivity.PREF_SOURCE_CURRENCY, sourceIndex);
+        editor.putInt(MainActivity.PREF_TARGET_CURRENCY, targetIndex);
         editor.apply();
         Intent resultIntent = new Intent();
         setResult(RESULT_OK, resultIntent);
@@ -75,8 +95,12 @@ public class MainActivity3 extends AppCompatActivity {
         finish();  // Close activity and return to MainActivity
     }
 
+
+
+
+
     private void updateRateDisplay() {
-        conversionRateText.setText("" + conversionRates[selectedIndex]);
+        conversionRateText.setText("Conversion Rate = " + MainActivity.conversionRates[sourceIndex][targetIndex]);
     }
 
 

@@ -16,29 +16,42 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "CurrencyConverter";
     public static final String PREFS_NAME = "CurrencyPrefs";
-    public static final String PREF_CURRENCY_INDEX = "currency_index";
+    public static final String PREF_SOURCE_CURRENCY = "source_currency";
+    public static final String PREF_TARGET_CURRENCY = "target_currency";
 
     private EditText inputAmount;
     private TextView convertedAmount;
-    private ImageView currencyFlag;
+    private ImageView sourceFlag;
+    private ImageView targetFlag;
     private Button convertButton;
     private Button configButton;
 
 
-    public static final int[] currencyFlags = {R.drawable.usa, R.drawable.canada, R.drawable.saudi ,R.drawable.qatar, R.drawable.kuwait};
-    public static double[] conversionRates = {0.68, 1, 2.25, 2.52, 0.21};
-    private int selectedCurrencyIndex = 0;
+    private String[] currencyNames = {"USD", "Canada", "Saudi Arabia", "Qatar", "Kuwait"};
+    private int[] currencyFlags = {R.drawable.usa, R.drawable.canada, R.drawable.saudi, R.drawable.qatar, R.drawable.kuwait};
+    public static double[][] conversionRates = {
+            {1.0, 0.37, 4.56, 0.30, 0.25},
+            {2.7, 1.0, 12.34, 0.81, 0.25},
+            {0.22, 0.081, 1.0, 0.065, 0.25},
+            {3.33, 1.23, 15.38, 1.0, 0.25},
+            {4.00, 1.50, 16.00, 1.10, 1.0}
+    };
+
+    private int sourceCurrencyIndex = 0;
+    private int targetCurrencyIndex = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         inputAmount = findViewById(R.id.editTextNumberDecimal);
         convertedAmount = findViewById(R.id.textView2);
-        currencyFlag = findViewById(R.id.imageView2);
+        sourceFlag = findViewById(R.id.imageView);
+        targetFlag = findViewById(R.id.imageView2);
         convertButton = findViewById(R.id.button);
         configButton = findViewById(R.id.button2);
-
-
+        loadPreferences();
+        updateUI();
     }
     @Override
     protected void onResume() {
@@ -60,35 +73,39 @@ public class MainActivity extends AppCompatActivity {
                 convertedAmount.setText("Amount cannot be negative");
                 return;
             }
-            double converted = amount * conversionRates[selectedCurrencyIndex];
+            double converted = amount * conversionRates[sourceCurrencyIndex][targetCurrencyIndex];
             convertedAmount.setText(String.format("%.2f", converted));
         } catch (NumberFormatException e) {
             convertedAmount.setText("Invalid input");
         }
     }
 
+
+
     public void nextActivity (View view) {
-        Intent switch2Activity2 = new Intent(MainActivity.this, MainActivity3.class);
-        startActivityForResult(switch2Activity2,1);
+        Intent intent = new Intent(MainActivity.this, MainActivity3.class);
+        startActivityForResult(intent, 1);
     }
 
 
     private void loadPreferences() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        selectedCurrencyIndex = prefs.getInt(PREF_CURRENCY_INDEX, 0);
+        sourceCurrencyIndex = prefs.getInt(PREF_SOURCE_CURRENCY, 0);
+        targetCurrencyIndex = prefs.getInt(PREF_TARGET_CURRENCY, 1);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) {
-            loadPreferences();  // Reload saved preferences
-            updateUI();         // Update flag and UI
+            loadPreferences();
+            updateUI();
         }
     }
 
     private void updateUI() {
-        currencyFlag.setImageResource(currencyFlags[selectedCurrencyIndex]);
-        convertButton.setText("@" + conversionRates[selectedCurrencyIndex] + " =");
+        sourceFlag.setImageResource(currencyFlags[sourceCurrencyIndex]);
+        targetFlag.setImageResource(currencyFlags[targetCurrencyIndex]);
+        convertButton.setText("@" + conversionRates[sourceCurrencyIndex][targetCurrencyIndex] + " =");
     }
 }
